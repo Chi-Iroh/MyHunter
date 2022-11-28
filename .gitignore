@@ -1,0 +1,11 @@
+*.out
+*.log
+*.gcda
+*.gcno
+*.a
+*.o
+*.out
+*.txt
+vgcore.*
+.vscode
+my_hunter
