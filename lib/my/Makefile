@@ -6,7 +6,7 @@
 ##
 
 CFLAGS	+=	-Wall -Wextra -pedantic -p -ggdb3 -std=c99 -fsigned-char	\
--funsigned-bitfields -Wno-unused-parameter -fanalyzer
+-funsigned-bitfields -Wno-unused-parameter -fanalyzer -I ./include/
 
 SRC	=	my_strcat.c 				        	\
 		my_convert_nbr_base.c 	        		\
