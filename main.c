@@ -2,87 +2,112 @@
 ** EPITECH PROJECT, 2022
 ** main.c
 ** File description:
-** -> displays a flying duck and handles mouse events
+** -> main
 */
 
-#include "my_hunter.h"
-#include <stdlib.h>
-#include <string.h>
 #include <time.h>
+#include <stdlib.h>
+#include "my_hunter.h"
+#include "my.h"
 
-static void destroy_drawable(drawable_t *draw)
-{
-    DESTROY_IF_ALLOCATED(sfTexture_destroy, draw->back_tx);
-    DESTROY_IF_ALLOCATED(sfTexture_destroy, draw->duck_tx);
-    DESTROY_IF_ALLOCATED(sfSprite_destroy, draw->back);
-    while (draw->ducks && draw->ducks->duck) {
-        DESTROY_IF_ALLOCATED(sfSprite_destroy, draw->ducks->duck);
-        draw->ducks = draw->ducks->next;
-    }
-    DESTROY_IF_ALLOCATED(sfMusic_destroy, draw->bgm);
-    free(draw);
-    draw = NULL;
-}
+const char *const help_msg =
+"                 ___________ \n"
+"                / ~~~~~~~~~ \\\n"
+"                | MY_HUNTER |\n"
+"                \\___________/\n"
+"---------------------------------------------\n"
+"#############################################\n"
+"############__---~~~~~|~~~~~--__#############\n"
+"########.-~~          |          ~~-.########\n"
+"#####.-~     .-~~~~-. |              ~-.#####\n"
+"####/       {  o     }|                 \\####\n"
+"###/        /       / |                  \\###\n"
+"##|        `--r'   {  | ,___.-',          |##\n"
+"##|          /      ~-|         ',        |##\n"
+"##|---------{---------|----------'--------|##\n"
+"##|          \\        |         /         |##\n"
+"##|           \\       |        /          |##\n"
+"###\\         ~ ~~~~~~~|~~~~~~~~~ ~       /###\n"
+"####\\       ~ ~ ~ ~ ~ | ~ ~ ~ ~ ~ ~     /####\n"
+"#####`-_     ~ ~ ~ ~ ~|~ ~ ~ ~ ~ ~    _-'####\n"
+"########`-__    ~ ~ ~ | ~ ~ ~ ~   __-'#######\n"
+"############~~---_____|_____---~~############\n"
+"#############################################\n"
+"\n"
+"USAGE :\n"
+"./my_hunter <flag>\n"
+"    -> <flag> can be either -h (or --help) --> which displays this menu\n"
+"    -> OR --epic which sets a more epic bgm :)\n"
+"---------------------------------------------\n"
+"CONTROLS :\n"
+"    -> mouse left click to SELECT a duck\n"
+"    -> use the mouse's wheel to change the SELECTION sound (there are 10)\n"
+"---------------------------------------------\n"
+"For the fervent animal rights defenders, "
+"I swear that no duck was harmed in any way.\n"
+"They are only selected and automatically moved into their home, "
+"then gently freed when they are sound asleep.\n"
+"---------------------------------------------\n"
+"              Have Fun :)\n";
 
-static int init_textures_and_back(drawable_t *draw)
+const char *const credits_msg =
+"Credits :\n"
+"    -> Default BGM : Humoresque of a Little Dog"
+" (Super Smash Bros Ultimate, EarthBound serie)\n"
+"    -> Epic BGM : The Obscurus - Rooftop Chase"
+" (Fantastic Beasts and Where to Find Them)\n"
+"    -> Death sounds : various sources (mainly depositphotos)\n";
+
+static int help(int argc, char *argv[])
 {
-    if (!draw) {
+    if (argc != 2) {
         return 0;
     }
-    draw->back_tx = sfTexture_createFromFile("background.jpg", NULL);
-    draw->duck_tx = sfTexture_createFromFile("duck.png", NULL);
-    if (!draw->back_tx || !draw->duck_tx) {
-        return 0;
+    if (my_strcmp(argv[1], "-h") == 0 || my_strcmp(argv[1], "--help") == 0) {
+        my_puts(help_msg);
+        return 1;
     }
-    draw->back = sfSprite_create();
-    if (!draw->back) {
-        return 0;
-    }
-    sfSprite_setTexture(draw->back, draw->back_tx, sfTrue);
-    return 1;
+    return my_strcmp(argv[1], "--epic") == 0 ? 0 : 1;
 }
 
-static drawable_t *init_drawable(void)
+static int clock_ready(sfClock *clock, unsigned fps)
 {
-    drawable_t *draw = malloc(sizeof(drawable_t));
-
-    if (draw) {
-        memset(draw, 0, sizeof(drawable_t));
-        TEST_DRAWABLE_ALLOC(init_textures_and_back(draw));
-        TEST_DRAWABLE_ALLOC(draw->bgm = sfMusic_createFromFile("bgm.ogg"));
-        sfMusic_setLoop(draw->bgm, sfTrue);
-        sfMusic_play(draw->bgm);
-    }
-    return draw;
+    return sfClock_getElapsedTime(clock).microseconds >= 1000000 / fps;
 }
 
-static void handle_event(sfRenderWindow *window)
+static void main_loop(sfRenderWindow *window, objects_t *obj, sfClock *clock)
 {
-    sfEvent event;
-
-    while (sfRenderWindow_pollEvent(window, &event)) {
-
-        if (event.type == sfEvtClosed) {
-            sfRenderWindow_close(window);
+    while (sfRenderWindow_isOpen(window)) {
+        if (clock_ready(clock, 3)) {
+            spawn_duck_at(obj, -(rand() % 200), rand() % 690);
+            sfClock_restart(clock);
         }
+        handle_event(window, obj);
+        if (clock_ready(clock, 60)) {
+
+        }
+        draw_window(window, obj);
     }
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
     const sfVideoMode video = {1200, 800, 32};
-    sfRenderWindow *window = sfRenderWindow_create(video, "Coin-Coin", 7, 0);
-    drawable_t *draw = init_drawable();
-    srand(time(NULL));
+    sfRenderWindow *window = NULL;
+    objects_t *obj = init_objects(argc, argv);
+    sfClock *clock = sfClock_create();
 
-    if (!draw) {
+    srand(time(NULL));
+    if (!obj || argc > 2) {
         return 84;
     }
-    spawn_duck_at(draw, 0, 0);
-    while (sfRenderWindow_isOpen(window))  {
-        handle_event(window);
-        draw_window(window, draw);
+    if (!help(argc, argv)) {
+        window = sfRenderWindow_create(video, "Doggo Duck Hunt", 7, 0);
+        main_loop(window, obj, clock);
+        my_puts(credits_msg);
     }
-    destroy_drawable(draw);
+    destroy_objects(obj);
+    sfRenderWindow_destroy(window);
+    sfClock_destroy(clock);
     return 0;
 }

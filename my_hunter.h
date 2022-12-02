@@ -18,9 +18,17 @@
     110 * (animation), 0, 110, 110              \
 }
 
-#define TEST_DRAWABLE_ALLOC(alloc_expr) { if (!(alloc_expr)) {  \
-    destroy_drawable(draw); return NULL;                        \
+#define TEST_OBJ_ALLOC(alloc_expr) { if (!(alloc_expr)) {  \
+    destroy_objects(obj); return NULL;                     \
 } }
+
+#define LOAD_DEATHS() {                                 \
+char name[11] = "death0.ogg";                            \
+for (size_t i = 0; i < 10; i++) {                       \
+    name[5] = '0' + i;                                  \
+    obj->deaths[i] = sfMusic_createFromFile(&name[0]);  \
+    TEST_OBJ_ALLOC(obj->deaths[i])                      \
+}}
 
 typedef struct ducks_struct {
     sfSprite *duck;
@@ -33,8 +41,20 @@ typedef struct {
     sfSprite *back;
     ducks_t *ducks;
     sfMusic *bgm;
-} drawable_t;
+    sfMusic *deaths[10];
+    int death;
+} objects_t;
 
-void draw_window(sfRenderWindow *window, drawable_t *draw);
+void draw_window(sfRenderWindow *window, objects_t *obj);
 
-void spawn_duck_at(drawable_t *draw, float x, float y);
+void spawn_duck_at(objects_t *obj, float x, float y);
+
+void handle_event(sfRenderWindow *window, objects_t *obj);
+
+void destroy_objects(objects_t *obj);
+
+objects_t *init_objects(int argc, char *argv[]);
+
+extern const char *const help_msg;
+
+extern const char *const credits_msg;

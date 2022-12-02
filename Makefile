@@ -5,10 +5,14 @@
 ## Makefile
 ##
 
-CFLAGS	+=	-Wall -Wextra -pedantic -p -g3 -ggdb3 -std=c99 -fsigned-char	\
--funsigned-bitfields -Wno-unused-parameter -fanalyzer
+CC = gcc
 
-SRC = 	draw.c	\
+CFLAGS	+=	-Wall -Wextra -pedantic -p -g3 -ggdb3 -std=c99 -fsigned-char	\
+-funsigned-bitfields -Wno-unused-parameter -fanalyzer -I ./include/
+
+SRC = 	draw.c			\
+		event.c 		\
+		init_destroy.c	\
 		main.c
 CSFML	=	-lcsfml-graphics -lcsfml-window -lcsfml-system -lcsfml-audio
 NAME = my_hunter
@@ -16,8 +20,9 @@ NAME = my_hunter
 all: $(NAME)
 
 $(NAME):
-	gcc -c $(SRC) $(CFLAGS)
-	gcc -o $(NAME) *.o -L ./lib -lmy -lm $(CSFML)
+	make -C ./lib/my/ -j8
+	$(CC) -c $(SRC) $(CFLAGS)
+	$(CC) -o $(NAME) *.o -L ./lib -lmy -lm $(CSFML)
 
 clean:
 	rm -f *.gcda
