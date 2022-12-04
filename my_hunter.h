@@ -26,13 +26,13 @@
     }                                       \
 }
 
-#define LOAD_SOUND(sound, file, buf) {                          \
-    (sound) = sfSound_create();                                 \
-    TEST_OBJ_ALLOC((sound));                                    \
-    (buf) = sfSoundBuffer_createFromFile((file));               \
-    TEST_OBJ_ALLOC((buf));                                      \
-    sfSound_setBuffer((sound), (buf));                          \
-    sfSound_setVolume((sound), 50.f + 50.f * !(obj->has_epic)); \
+#define LOAD_SOUND(sound, file, buf) {                              \
+    (sound) = sfSound_create();                                     \
+    TEST_OBJ_ALLOC((sound));                                        \
+    (buf) = sfSoundBuffer_createFromFile((file));                   \
+    TEST_OBJ_ALLOC((buf));                                          \
+    sfSound_setBuffer((sound), (buf));                              \
+    sfSound_setVolume((sound), 50.f + 50.f * !(obj->has_fiesta));   \
 }
 
 #define LOAD_DEATHS() {                                                 \
@@ -54,7 +54,7 @@ sfClock_getElapsedTime((clock)).microseconds >= 1000000 / (fps)
 #else
     #define DISPLAY_END_MSG         \
         while (steps[i] < score) {  \
-        i++;                        \
+            i++;                    \
         }                           \
         my_puts(ends[i]);
 #endif
@@ -73,7 +73,7 @@ typedef struct {
     sfSound *deaths[10];
     sfSoundBuffer *deaths_buffers[10];
     int death;
-    int has_epic;
+    int has_fiesta;
 } objects_t;
 
 void draw_window(sfRenderWindow *window, objects_t *obj);

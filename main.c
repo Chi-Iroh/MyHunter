@@ -37,7 +37,7 @@ const char *const help_msg =
 "USAGE :\n"
 "./my_hunter <flag>\n"
 "    -> <flag> can be either -h (or --help) --> which displays this menu\n"
-"    -> OR --epic which sets a more epic bgm :)\n"
+"    -> OR --fiesta which does <SECRET> :)\n"
 "    -> try to play with mouse's wheel, maybe something cool can happend\n"
 "---------------------------------------------\n"
 "CONTROLS :\n"
@@ -55,7 +55,7 @@ const char *const credits_msg =
 "Credits :\n"
 "    -> Default BGM : Humoresque of a Little Dog"
 " (Super Smash Bros Ultimate, EarthBound serie)\n"
-"    -> Epic BGM : Le Pudding à l'Arsenic (Astérix et Cléopâtre)\n"
+"    -> Fiesta BGM : Koro wo Yattsukero (Assassination Classroom)\n"
 "    -> Death sounds : various sources (mainly depositphotos)\n";
 
 static int help(int argc, char *argv[])
@@ -67,7 +67,7 @@ static int help(int argc, char *argv[])
         my_puts(help_msg);
         return 1;
     }
-    return my_strcmp(argv[1], "--epic") == 0 ? 0 : 1;
+    return my_strcmp(argv[1], "--fiesta") == 0 ? 0 : 1;
 }
 
 static void display_end_message(unsigned score)
@@ -77,7 +77,7 @@ static void display_end_message(unsigned score)
         "Read the --help and learn to play please.",
         "Nothing to say. Not bad nor good. Not interesting.",
         "Serial duck killer, woups... I mean SELECTOR, of course... "
-        "(see --help fot further informations).",
+        "(see --help for further informations).",
         "Are you a cheater ? Otherwise don't you have something else to do ?"
     };
     size_t i = 0;
@@ -131,19 +131,17 @@ int main(int argc, char *argv[])
     sfRenderWindow *window = NULL;
     objects_t *obj = init_objects(argc, argv);
     const char *const start_title = "Doggo Duck Hunt | Score : 0 | Sound : 5";
+    int is_ok = obj && argc < 2;
 
     srand(time(NULL));
-    if (!obj || argc > 2) {
-        return 84;
-    }
-    if (!help(argc, argv)) {
+    if (is_ok && !help(argc, argv)) {
         window = sfRenderWindow_create(video, start_title, 7, 0);
         sfRenderWindow_setFramerateLimit(window, 60);
         main_loop(window, obj);
         my_puts("---------------------------------------------");
         my_puts(credits_msg);
+        sfRenderWindow_destroy(window);
     }
-    destroy_objects(obj);
-    sfRenderWindow_destroy(window);
-    return 0;
+    DESTROY_IF_ALLOCATED(destroy_objects, obj);
+    return 84 * !is_ok;
 }
