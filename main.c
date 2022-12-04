@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     sfRenderWindow *window = NULL;
     objects_t *obj = init_objects(argc, argv);
     const char *const start_title = "Doggo Duck Hunt | Score : 0 | Sound : 5";
-    int is_ok = obj && argc < 2;
+    int is_ok = obj && argc <= 2;
 
     srand(time(NULL));
     if (is_ok && !help(argc, argv)) {
