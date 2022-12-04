@@ -10,25 +10,54 @@
 #include <SFML/Graphics.h>
 #include <SFML/Audio.h>
 
-#define DESTROY_IF_ALLOCATED(destroyer, var) { if (var) {   \
-    (destroyer)(var);                                       \
-} }
+#define DESTROY_IF_ALLOCATED(destroyer, var) {  \
+    if (var) {                                  \
+        (destroyer)(var);                       \
+    }                                           \
+}
 
 #define TEXTURE_RECT(animation) (sfIntRect) {   \
     110 * (animation), 0, 110, 110              \
 }
 
-#define TEST_OBJ_ALLOC(alloc_expr) { if (!(alloc_expr)) {  \
-    destroy_objects(obj); return NULL;                     \
-} }
+#define TEST_OBJ_ALLOC(alloc_expr) {        \
+    if (!(alloc_expr)) {                    \
+        destroy_objects(obj); return NULL;  \
+    }                                       \
+}
 
-#define LOAD_DEATHS() {                                 \
-char name[11] = "death0.ogg";                            \
-for (size_t i = 0; i < 10; i++) {                       \
-    name[5] = '0' + i;                                  \
-    obj->deaths[i] = sfMusic_createFromFile(&name[0]);  \
-    TEST_OBJ_ALLOC(obj->deaths[i])                      \
-}}
+#define LOAD_SOUND(sound, file, buf) {                          \
+    (sound) = sfSound_create();                                 \
+    TEST_OBJ_ALLOC((sound));                                    \
+    (buf) = sfSoundBuffer_createFromFile((file));               \
+    TEST_OBJ_ALLOC((buf));                                      \
+    sfSound_setBuffer((sound), (buf));                          \
+    sfSound_setVolume((sound), 50.f + 50.f * !(obj->has_epic)); \
+}
+
+#define LOAD_DEATHS() {                                                 \
+    char name[11] = "death0.ogg";                                       \
+    for (size_t i = 0; i < 10; i++) {                                   \
+        name[5] = '0' + i;                                              \
+        LOAD_SOUND(obj->deaths[i], &name[0], obj->deaths_buffers[i]);   \
+    }                                                                   \
+}
+
+#define IS_CLOCK_READY(clock, fps)  \
+sfClock_getElapsedTime((clock)).microseconds >= 1000000 / (fps)
+
+
+#ifdef DISP_END_50
+    #define DISPLAY_END_MSG my_puts(ends[2]) ;
+#elif defined(DISP_END_100)
+    #define DISPLAY_END_MSG my_puts(ends[3]) ;
+#else
+    #define DISPLAY_END_MSG         \
+        while (steps[i] < score) {  \
+        i++;                        \
+        }                           \
+        my_puts(ends[i]);
+#endif
 
 typedef struct ducks_struct {
     sfSprite *duck;
@@ -41,15 +70,17 @@ typedef struct {
     sfSprite *back;
     ducks_t *ducks;
     sfMusic *bgm;
-    sfMusic *deaths[10];
+    sfSound *deaths[10];
+    sfSoundBuffer *deaths_buffers[10];
     int death;
+    int has_epic;
 } objects_t;
 
 void draw_window(sfRenderWindow *window, objects_t *obj);
 
 void spawn_duck_at(objects_t *obj, float x, float y);
 
-void handle_event(sfRenderWindow *window, objects_t *obj);
+void handle_event(sfRenderWindow *window, objects_t *obj, unsigned *score);
 
 void destroy_objects(objects_t *obj);
 

@@ -25,7 +25,8 @@ void destroy_objects(objects_t *obj)
     }
     DESTROY_IF_ALLOCATED(sfMusic_destroy, obj->bgm);
     for (size_t i = 0; i < 10; i++) {
-        DESTROY_IF_ALLOCATED(sfMusic_destroy, obj->deaths[i]);
+        DESTROY_IF_ALLOCATED(sfSound_destroy, obj->deaths[i]);
+        DESTROY_IF_ALLOCATED(sfSoundBuffer_destroy, obj->deaths_buffers[i]);
     }
     free(obj);
 }
@@ -54,16 +55,17 @@ objects_t *init_objects(int argc, char *argv[])
 
     if (obj) {
         memset(obj, 0, sizeof(objects_t));
+        obj->has_epic = my_strcmp(argv[1], "--epic") == 0;
         TEST_OBJ_ALLOC(init_textures_and_back(obj));
-        if (argc == 2 && my_strcmp(argv[1], "--epic") == 0) {
+        if (argc == 2 && obj->has_epic) {
             TEST_OBJ_ALLOC(obj->bgm = sfMusic_createFromFile("epic_bgm.ogg"));
         } else {
             TEST_OBJ_ALLOC(obj->bgm = sfMusic_createFromFile("bgm.ogg"));
         }
+        sfMusic_setVolume(obj->bgm, 25.f + 50.f * obj->has_epic);
         LOAD_DEATHS();
         obj->death = 5;
         sfMusic_setLoop(obj->bgm, sfTrue);
-        sfMusic_setVolume(obj->bgm, 50.f);
         sfMusic_play(obj->bgm);
     }
     return obj;

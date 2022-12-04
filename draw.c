@@ -82,12 +82,8 @@ move_and_draw_all_ducks(sfRenderWindow *window, ducks_t **ducks, float offset)
 
 void draw_window(sfRenderWindow *window, objects_t *obj)
 {
-    static unsigned n = 0;
-
     sfRenderWindow_clear(window, (sfColor) { 0xB5, 0xFC, 0xF6, 0xFF });
     sfRenderWindow_drawSprite(window, obj->back, NULL);
     move_and_draw_all_ducks(window, &obj->ducks, 5.f);
     sfRenderWindow_display(window);
-    sfSleep((sfTime){1000000 / 60});
-    n = (n + 100) % 3;
 }

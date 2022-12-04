@@ -35,4 +35,14 @@ fclean: clean
 	rm -f $(NAME)
 	rm -f my_ls
 
+MSG50:
+	make -C ./lib/my/ -j8
+	$(CC) -c $(SRC) $(CFLAGS) -DDISP_END_50
+	$(CC) -o $(NAME) *.o -L ./lib -lmy -lm $(CSFML)
+
+MSG100:
+	make -C ./lib/my/ -j8
+	$(CC) -c $(SRC) $(CFLAGS) -DDISP_END_100
+	$(CC) -o $(NAME) *.o -L ./lib -lmy -lm $(CSFML)
+
 re: fclean all

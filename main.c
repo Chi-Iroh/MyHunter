@@ -38,6 +38,7 @@ const char *const help_msg =
 "./my_hunter <flag>\n"
 "    -> <flag> can be either -h (or --help) --> which displays this menu\n"
 "    -> OR --epic which sets a more epic bgm :)\n"
+"    -> try to play with mouse's wheel, maybe something cool can happend\n"
 "---------------------------------------------\n"
 "CONTROLS :\n"
 "    -> mouse left click to SELECT a duck\n"
@@ -54,8 +55,7 @@ const char *const credits_msg =
 "Credits :\n"
 "    -> Default BGM : Humoresque of a Little Dog"
 " (Super Smash Bros Ultimate, EarthBound serie)\n"
-"    -> Epic BGM : The Obscurus - Rooftop Chase"
-" (Fantastic Beasts and Where to Find Them)\n"
+"    -> Epic BGM : Le Pudding à l'Arsenic (Astérix et Cléopâtre)\n"
 "    -> Death sounds : various sources (mainly depositphotos)\n";
 
 static int help(int argc, char *argv[])
@@ -70,24 +70,59 @@ static int help(int argc, char *argv[])
     return my_strcmp(argv[1], "--epic") == 0 ? 0 : 1;
 }
 
-static int clock_ready(sfClock *clock, unsigned fps)
+static void display_end_message(unsigned score)
 {
-    return sfClock_getElapsedTime(clock).microseconds >= 1000000 / fps;
+    const unsigned steps[4] = { 10, 25, 50, 100 };
+    const char *ends[4] = {
+        "Read the --help and learn to play please.",
+        "Nothing to say. Not bad nor good. Not interesting.",
+        "Serial duck killer, woups... I mean SELECTOR, of course... "
+        "(see --help fot further informations).",
+        "Are you a cheater ? Otherwise don't you have something else to do ?"
+    };
+    size_t i = 0;
+
+    DISPLAY_END_MSG;
 }
 
-static void main_loop(sfRenderWindow *window, objects_t *obj, sfClock *clock)
+static void update_score(sfRenderWindow *window, int sound, unsigned score)
 {
-    while (sfRenderWindow_isOpen(window)) {
-        if (clock_ready(clock, 3)) {
-            spawn_duck_at(obj, -(rand() % 200), rand() % 690);
-            sfClock_restart(clock);
-        }
-        handle_event(window, obj);
-        if (clock_ready(clock, 60)) {
+    char new_title[40] = {0};
+    char *score_str = NULL;
+    char *sound_str = NULL;
 
+    my_strcpy(&new_title[0], "Doggo Duck Hunt | Score ");
+    score_str = my_utoa(score);
+    my_strcpy(&new_title[24], score_str);
+    free(score_str);
+    my_strcat(&new_title[0], " | Sound ");
+    sound_str = my_utoa((unsigned)sound);
+    my_strcat(&new_title[0], sound_str);
+    free(sound_str);
+    sfRenderWindow_setTitle(window, &new_title[0]);
+}
+
+static void main_loop(sfRenderWindow *window, objects_t *obj)
+{
+    sfClock *rendering_clock = sfClock_create();
+    sfClock *duck_clock = sfClock_create();
+    unsigned score = 0;
+
+    while (sfRenderWindow_isOpen(window) && rendering_clock && duck_clock) {
+        if (IS_CLOCK_READY(duck_clock, 3)) {
+            spawn_duck_at(obj, -(rand() % 200), rand() % 690);
+            sfClock_restart(duck_clock);
         }
-        draw_window(window, obj);
+        handle_event(window, obj, &score);
+        if (IS_CLOCK_READY(rendering_clock, 60)) {
+            update_score(window, obj->death, score);
+            draw_window(window, obj);
+            sfClock_restart(rendering_clock);
+        }
     }
+    sfClock_destroy(duck_clock);
+    sfClock_destroy(rendering_clock);
+    display_end_message(score);
 }
 
 int main(int argc, char *argv[])
@@ -95,19 +130,20 @@ int main(int argc, char *argv[])
     const sfVideoMode video = {1200, 800, 32};
     sfRenderWindow *window = NULL;
     objects_t *obj = init_objects(argc, argv);
-    sfClock *clock = sfClock_create();
+    const char *const start_title = "Doggo Duck Hunt | Score : 0 | Sound : 5";
 
     srand(time(NULL));
     if (!obj || argc > 2) {
         return 84;
     }
     if (!help(argc, argv)) {
-        window = sfRenderWindow_create(video, "Doggo Duck Hunt", 7, 0);
-        main_loop(window, obj, clock);
+        window = sfRenderWindow_create(video, start_title, 7, 0);
+        sfRenderWindow_setFramerateLimit(window, 60);
+        main_loop(window, obj);
+        my_puts("---------------------------------------------");
         my_puts(credits_msg);
     }
     destroy_objects(obj);
     sfRenderWindow_destroy(window);
-    sfClock_destroy(clock);
     return 0;
 }
