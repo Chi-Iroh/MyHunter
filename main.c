@@ -73,12 +73,13 @@ static int help(int argc, char *argv[])
 static void display_end_message(unsigned score)
 {
     const unsigned steps[4] = { 10, 25, 50, 100 };
-    const char *ends[4] = {
+    const char *ends[5] = {
         "Read the --help and learn to play please.",
         "Nothing to say. Not bad nor good. Not interesting.",
         "Serial duck killer, woups... I mean SELECTOR, of course... "
         "(see --help for further informations).",
-        "Are you a cheater ? Otherwise don't you have something else to do ?"
+        "Are you a cheater ? Otherwise don't you have something else to do ?",
+        "*Doggo Duck Hunt God Player enters the chat*"
     };
     size_t i = 0;
 
@@ -109,7 +110,7 @@ static void main_loop(sfRenderWindow *window, objects_t *obj)
     unsigned score = 0;
 
     while (sfRenderWindow_isOpen(window) && rendering_clock && duck_clock) {
-        if (IS_CLOCK_READY(duck_clock, 3)) {
+        if (IS_CLOCK_READY(duck_clock, 200)) {
             spawn_duck_at(obj, -(rand() % 200), rand() % 690);
             sfClock_restart(duck_clock);
         }
