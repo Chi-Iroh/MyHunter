@@ -110,7 +110,7 @@ static void main_loop(sfRenderWindow *window, objects_t *obj)
     unsigned score = 0;
 
     while (sfRenderWindow_isOpen(window) && rendering_clock && duck_clock) {
-        if (IS_CLOCK_READY(duck_clock, 200)) {
+        if (IS_CLOCK_READY(duck_clock, 3)) {
             spawn_duck_at(obj, -(rand() % 200), rand() % 690);
             sfClock_restart(duck_clock);
         }
