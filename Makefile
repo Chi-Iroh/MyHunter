@@ -7,8 +7,8 @@
 
 CC = gcc
 
-CFLAGS	+=	-Wall -Wextra -pedantic -p -g3 -ggdb3 -std=c99 -fsigned-char	\
--funsigned-bitfields -Wno-unused-parameter -fanalyzer -I ./include/
+CFLAGS	+=	-Wall -Wextra -pedantic -p -g3 -ggdb3 -fsigned-char	\
+-funsigned-bitfields -fanalyzer -I ./include/
 
 SRC = 	draw.c			\
 		event.c 		\
@@ -43,6 +43,11 @@ MSG50:
 MSG100:
 	make -C ./lib/my/ -j8
 	$(CC) -c $(SRC) $(CFLAGS) -DDISP_END_100
+	$(CC) -o $(NAME) *.o -L ./lib -lmy -lm $(CSFML)
+
+MSGMAX:
+	make -C ./lib/my/ -j8
+	$(CC) -c $(SRC) $(CFLAGS) -DDISP_END_MAX
 	$(CC) -o $(NAME) *.o -L ./lib -lmy -lm $(CSFML)
 
 re: fclean all

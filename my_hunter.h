@@ -48,15 +48,17 @@ sfClock_getElapsedTime((clock)).microseconds >= 1000000 / (fps)
 
 
 #ifdef DISP_END_50
-    #define DISPLAY_END_MSG my_puts(ends[2]) ;
+    #define DISPLAY_END_MSG my_puts(ends[2]);
 #elif defined(DISP_END_100)
-    #define DISPLAY_END_MSG my_puts(ends[3]) ;
+    #define DISPLAY_END_MSG my_puts(ends[3]);
+#elif defined(DISP_END_MAX)
+    #define DISPLAY_END_MSG my_puts(ends[4]);
 #else
-    #define DISPLAY_END_MSG         \
-        while (steps[i] < score) {  \
-            i++;                    \
-        }                           \
-        my_puts(ends[i]);
+#define DISPLAY_END_MSG                 \
+    while (i < 4 && steps[i] < score) { \
+        i++;                            \
+    }                                   \
+    my_puts(ends[i]);
 #endif
 
 typedef struct ducks_struct {

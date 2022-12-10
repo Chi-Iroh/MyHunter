@@ -86,9 +86,9 @@ static void display_end_message(unsigned score)
     DISPLAY_END_MSG;
 }
 
-static void update_score(sfRenderWindow *window, int sound, unsigned score)
+static void update_score_and_sound(sfRenderWindow *window, int sound, unsigned score)
 {
-    char new_title[40] = {0};
+    char new_title[64] = {0};
     char *score_str = NULL;
     char *sound_str = NULL;
 
@@ -116,7 +116,7 @@ static void main_loop(sfRenderWindow *window, objects_t *obj)
         }
         handle_event(window, obj, &score);
         if (IS_CLOCK_READY(rendering_clock, 60)) {
-            update_score(window, obj->death, score);
+            update_score_and_sound(window, obj->death, score);
             draw_window(window, obj);
             sfClock_restart(rendering_clock);
         }
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 
     srand(time(NULL));
     if (is_ok && !help(argc, argv)) {
-        window = sfRenderWindow_create(video, start_title, 7, 0);
+        window = sfRenderWindow_create(video, start_title, sfDefaultStyle, 0);
         sfRenderWindow_setFramerateLimit(window, 60);
         main_loop(window, obj);
         my_puts("---------------------------------------------");

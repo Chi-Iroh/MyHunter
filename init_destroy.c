@@ -31,7 +31,7 @@ void destroy_objects(objects_t *obj)
     free(obj);
 }
 
-static int init_textures_and_back(objects_t *obj)
+static int init_textures_and_background(objects_t *obj)
 {
     if (!obj) {
         return 0;
@@ -56,7 +56,7 @@ objects_t *init_objects(int argc, char *argv[])
     if (obj) {
         memset(obj, 0, sizeof(objects_t));
         obj->has_fiesta = my_strcmp(argv[1], "--fiesta") == 0;
-        TEST_OBJ_ALLOC(init_textures_and_back(obj));
+        TEST_OBJ_ALLOC(init_textures_and_background(obj));
         if (argc == 2 && obj->has_fiesta) {
             TEST_OBJ_ALLOC(obj->bgm = sfMusic_createFromFile("fiesta_bgm.ogg"));
         } else {
